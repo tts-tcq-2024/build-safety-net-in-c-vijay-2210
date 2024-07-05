@@ -1,47 +1,50 @@
-#ifndef SOUNDEX_H
-#define SOUNDEX_H
-
-#include "Soundex.h"
+#include "php.h"
+#include <stdlib.h>
 #include <ctype.h>
-#include <string.h>
 
-char getSoundexCode(char c) {
-    c = toupper(c);
-  //  switch (c) {  
-        if(c== 'B' || c=='F' || c=='V'){return '1';}
-        if(c== 'C' || c=='G' || c=='J'||c=='K'|| c=='Q'|| c=='S'||c=='X'|| c=='Z' ){return '2';}
-        if(c== 'D' || c=='T' ){return '3';}
-        if(c== 'L' ){return '4';}
-        if(c== 'M' || c=='N' ){return '5';}
-        if(c== 'R'){return '6';}
-      //  case 'B': case 'F': case 'P': case 'V': return '1';
-      //  case 'C': case 'G': case 'J': case 'K': case 'Q': case 'S': case 'X': case 'Z': return '2';
-     //   case 'D': case 'T': return '3';
-     //   case 'L': return '4';
-     //   case 'M': case 'N': return '5';
-     //   case 'R': return '6';
-       // default: return '0'; // For A, E, I, O, U, H, W, Y
-    else{return '0';} // For A, E, I, O, U, H, W, Y}
-    }
-//}
+PHP_FUNCTION(soundex)
+{
+	char	*str;
+	size_t	i, _small, str_len, code, last;
+	char	soundex[4 + 1];
 
-void generateSoundex(const char *name, char *soundex) {
-    int len = strlen(name);
-    soundex[0] = toupper(name[0]);
-    int sIndex = 1;
+	static const char soundex_table[26] =
+	{0,'1','2','3',	0,'1','2', 0, 0, 
+        '2', '2','4','5','5',0,'1','2','6',
+        '2','3',0,'1',0,'2',0,'2'};						
 
-    for (int i = 1; i < len && sIndex < 4; i++) {
-        char code = getSoundexCode(name[i]);
-        if (code != '0' && code != soundex[sIndex - 1]) {
-            soundex[sIndex++] = code;
-        }
-    }
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STRING(str, str_len)
+	ZEND_PARSE_PARAMETERS_END();
 
-    while (sIndex < 4) {
-        soundex[sIndex++] = '0';
-    }
 
-    soundex[4] = '\0';
+last = -1;
+	for (i = 0, _small = 0; i < str_len && _small < 4; i++) {
+		
+		code = toupper((int)(unsigned char)str[i]);
+		if (code >= 'A' && code <= 'Z') {
+			if (_small == 0) {
+				
+				soundex[_small++] = (char)code;
+				last = soundex_table[code - 'A'];
+			}
+			else {
+				
+				code = soundex_table[code - 'A'];
+				if (code != last) {
+					if (code != 0) {
+						soundex[_small++] = (char)code;
+					}
+					last = code;
+				}
+			}
+		}
+	}
+	
+	while (_small < 4) {
+		soundex[_small++] = '0';
+	}
+	soundex[_small] = '\0';
+
+	RETURN_STRINGL(soundex, _small);
 }
-
-#endif // SOUNDEX_H
