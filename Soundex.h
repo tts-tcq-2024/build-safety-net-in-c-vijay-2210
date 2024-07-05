@@ -6,6 +6,7 @@
 #include <string.h>
 
 char getSoundexCode(char c) {
+    char c;
     c = toupper(c);
   //  switch (c) {  
         if(c== 'B' || C=='F' || c=='V'){return '1';}
