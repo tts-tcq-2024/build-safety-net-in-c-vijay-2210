@@ -6,14 +6,13 @@
 #include <string.h>
 
 char getSoundexCode(char c) {
-    char c;
     c = toupper(c);
   //  switch (c) {  
-        if(c== 'B' || C=='F' || c=='V'){return '1';}
-        if(c== 'C' || C=='G' || c=='J'||c=='K'|| c=='Q'|| c=='S'||c=='X'|| c=='Z' ){return '2';}
-        if(c== 'D' || C=='T' ){return '3';}
+        if(c== 'B' || c=='F' || c=='V'){return '1';}
+        if(c== 'C' || c=='G' || c=='J'||c=='K'|| c=='Q'|| c=='S'||c=='X'|| c=='Z' ){return '2';}
+        if(c== 'D' || c=='T' ){return '3';}
         if(c== 'L' ){return '4';}
-        if(c== 'M' || C=='N' ){return '5';}
+        if(c== 'M' || c=='N' ){return '5';}
         if(c== 'R'){return '6';}
       //  case 'B': case 'F': case 'P': case 'V': return '1';
       //  case 'C': case 'G': case 'J': case 'K': case 'Q': case 'S': case 'X': case 'Z': return '2';
