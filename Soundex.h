@@ -1,132 +1,45 @@
-
-#include "similarity.h"
-
-static const char *stable =
-	"01230120022455012623010202";
-
-static char convert_soundex(char a)
+#include        <string.h> 
+#include        <ctype.h> 
+char *soundex(const char *in)
 {
-	a = toupper((unsigned char) a);
-	/* soundex code is only defined to ASCII characters */
-	if (a >= 'A' && a <= 'Z')
-		return stable[a - 'A'];
-	else
-		return a;
-}
+   static  int code[] =
+      {  0,1,2,3,0,1,2,0,0,2,2,4,5,5,0,1,2,6,2,3,0,1,0,2,0,2 };
+      
+   static  char key[5];
+   register        char ch;
+   register        int last;
+   register        int count;
+   
+   strcpy(key, "Z000");
+  
+   while (*in != '\0'  &&  !isalpha(*in))
+      ++in;
+   if (*in == '\0')
+      return key;
 
-static char *_soundex(char *a)
+   key[0] = toupper(*in);
+   last = code[key[0] - 'A'];
+   ++in;
+   for (count = 1;  count < 4  &&  *in != '\0';  ++in) {
+      if (isalpha(*in)) {
+         ch = tolower(*in);
+         if (last != code[ch - 'a']) {
+            last = code[ch - 'a'];
+            if (last != 0)
+               key[count++] = '0' + last;
+         }
+      }
+   }
+   return key;
+}
+#ifdef  TESTPROG
+
+#include    <stdio.h>   
+int main()
 {
-	int		alen;
-	int		i;
-	int		len;
-	char	*scode;
-	int		lastcode = PGS_SOUNDEX_INV_CODE;
-
-	alen = strlen(a);
-
-	elog(DEBUG2, "alen: %d", alen);
-
-	if (alen == 0)
-		return NULL;
-
-#ifdef PGS_IGNORE_CASE
-	elog(DEBUG2, "case-sensitive turns off");
-	for (i = 0; i < alen; i++)
-		a[i] = toupper(a[i]);
-#endif
-
-	scode = palloc(PGS_SOUNDEX_LEN + 1);
-
-	scode[PGS_SOUNDEX_LEN] = '\0';
-
-	
-	while (!isalpha(*a) && *a != '\0')
-		a++;
-
-	if (*a == '\0')
-		elog(ERROR, "string doesn't contain non-alpha character(s)");
-
-	
-	scode[0] = *a++;
-	len = 1;
-
-	elog(DEBUG2, "The first letter is: %c", scode[0]);
-
-	while (*a && len < PGS_SOUNDEX_LEN)
-	{
-		int curcode = convert_soundex(*a);
-
-		elog(DEBUG3, "The code for '%c' is: %d", *a, curcode);
-
-		if (isalpha(*a) && (curcode != lastcode) && curcode != '0')
-		{
-			scode[len] = curcode;
-			elog(DEBUG2, "scode[%d] = %d", len, curcode);
-			len++;
-		}
-		lastcode = curcode;
-		a++;
-	}
-
-	
-	while (len < PGS_SOUNDEX_LEN)
-	{
-		scode[len] = '0';
-		elog(DEBUG2, "scode[%d] = %d", len, scode[len]);
-		len++;
-	}
-
-	return scode;
+   char    instring[80];
+   while (fgets(instring, sizeof instring, stdin) != NULL)
+      printf("%s\n", soundex(instring));
+   return 0;
 }
-
-PG_FUNCTION_INFO_V1(soundex);
-
-Datum
-soundex(PG_FUNCTION_ARGS)
-{
-	char	*a, *b;
-	char	*resa;
-	char	*resb;
-	float8	res;
-
-	a = DatumGetPointer(DirectFunctionCall1(textout,
-											PointerGetDatum(PG_GETARG_TEXT_P(0))));
-	b = DatumGetPointer(DirectFunctionCall1(textout,
-											PointerGetDatum(PG_GETARG_TEXT_P(1))));
-
-	if (strlen(a) > PGS_MAX_STR_LEN || strlen(b) > PGS_MAX_STR_LEN)
-		ereport(ERROR,
-				(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-				 errmsg("argument exceeds the maximum length of %d bytes",
-						PGS_MAX_STR_LEN)));
-
-	resa = _soundex(a);
-	resb = _soundex(b);
-
-	elog(DEBUG1, "soundex(%s) = %s", a, (resa) ? resa : "NULL");
-	elog(DEBUG1, "soundex(%s) = %s", b, (resb) ? resb : "NULL");
-
-	
-	if (resa != NULL && resb != NULL && strncmp(resa, resb, PGS_SOUNDEX_LEN) == 0)
-		res = 1.0;
-	else if (resa == NULL && resb == NULL)
-		res = 1.0;
-	else
-		res = 0.0;
-
-	PG_RETURN_FLOAT8(res);
-}
-
-PG_FUNCTION_INFO_V1(soundex_op);
-
-Datum soundex_op(PG_FUNCTION_ARGS)
-{
-	float8	res;
-
-	res = DatumGetFloat8(DirectFunctionCall2(
-							 soundex,
-							 PG_GETARG_DATUM(0),
-							 PG_GETARG_DATUM(1)));
-
-	PG_RETURN_BOOL(res == 1.0);
-}
+#endif  TESTPROG
