@@ -1,7 +1,6 @@
 #include "php.h"
 #include <stdlib.h>
 #include <ctype.h>
-
 PHP_FUNCTION(soundex)
 {
 	char	*str;
