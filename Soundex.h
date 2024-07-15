@@ -5,14 +5,14 @@
 #include <ctype.h>
 #include <string.h>
 
-char getSoundexCode(char c) {
-    c = toupper(c);  
-        if(c== 'B' || c=='F' || c=='V'){return '1';}
-        if(c== 'C' || c=='G' || c=='J'||c=='K'|| c=='Q'|| c=='S'||c=='X'|| c=='Z' ){return '2';}
-        if(c== 'D' || c=='T' ){return '3';}
-        if(c== 'L' ){return '4';}
-        if(c== 'M' || c=='N' ){return '5';}
-        if(c== 'R'){return '6';}
+char getSoundexCode(char checker) {
+    checker = toupper(c);  
+        if(checker== 'B' || checker=='F' || checker=='V'){return '1';}
+        if(checker== 'C' || checker=='G' || checker=='J'||checker=='K'|| checker=='Q'|| checker=='S'||checker=='X'|| checker=='Z' ){return '2';}
+        if(checker== 'D' ||checker=='T' ){return '3';}
+        if(checker== 'L' ){return '4';}
+        if(checker== 'M' || checker=='N' ){return '5';}
+        if(checker== 'R'){return '6';}
         else{return '0';} 
     }
 
