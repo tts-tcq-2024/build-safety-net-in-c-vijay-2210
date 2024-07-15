@@ -6,7 +6,7 @@
 #include <string.h>
 
 char getSoundexCode(char checker) {
-    checker = toupper(c);  
+    checker = toupper(checker);  
         if(checker== 'B' || checker=='F' || checker=='V'){return '1';}
         if(checker== 'C' || checker=='G' || checker=='J'||checker=='K'|| checker=='Q'|| checker=='S'||checker=='X'|| checker=='Z' ){return '2';}
         if(checker== 'D' ||checker=='T' ){return '3';}
